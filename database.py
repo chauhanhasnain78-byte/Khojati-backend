@@ -12,8 +12,11 @@ from sqlalchemy.orm import Session, sessionmaker
 from config import settings
 
 db_url = settings.DATABASE_URL
-if db_url.startswith("postgres://"):
-    # SQLAlchemy requires postgresql:// instead of legacy postgres://
+
+# Normalize PostgreSQL driver prefixes for SQLAlchemy
+if db_url.startswith("prisma+postgres://"):
+    db_url = db_url.replace("prisma+postgres://", "postgresql://", 1)
+elif db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
 is_sqlite = db_url.startswith("sqlite")
@@ -24,6 +27,7 @@ engine = create_engine(
     db_url,
     connect_args=connect_args,
     echo=False,
+    pool_pre_ping=True,  # Automatically reconnect dropped cloud connections
 )
 
 if is_sqlite:

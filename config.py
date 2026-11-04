@@ -18,16 +18,34 @@ def _get_default_db_url() -> str:
     return "sqlite:///./khojati_inventory.db"
 
 
+def _find_database_url() -> str:
+    """Detect database connection string from various cloud provider env vars."""
+    keys = [
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "POSTGRES_PRISMA_URL",
+        "PRISMA_DATABASE_URL",
+        "STORAGE_URL",
+        "POSTGRES_URL_NON_POOLING",
+    ]
+    for key in keys:
+        val = os.getenv(key)
+        if val:
+            return val
+
+    # Scan for any env var containing a postgres connection string
+    for _, val in os.environ.items():
+        if val and ("postgres://" in val or "postgresql://" in val or "prisma+postgres://" in val):
+            return val
+
+    return _get_default_db_url()
+
+
 class _Settings:
     """Application-wide configuration constants."""
 
     # ── Database ───────────────────────────────────────────────────────────
-    DATABASE_URL: str = (
-        os.getenv("POSTGRES_URL")
-        or os.getenv("DATABASE_URL")
-        or os.getenv("POSTGRES_PRISMA_URL")
-        or _get_default_db_url()
-    )
+    DATABASE_URL: str = _find_database_url()
 
     # ── Authentication ─────────────────────────────────────────────────────
     SECRET_KEY: str = os.getenv(
