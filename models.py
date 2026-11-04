@@ -229,7 +229,7 @@ class DamageReport(Base):
     barcode = Column(String(50), nullable=False)
     quantity = Column(Integer, nullable=False, default=1)
     reported_by = Column(String(100), nullable=False)
-    photo_path = Column(String(500), nullable=True)
+    photo_path = Column(Text, nullable=True)
     reason = Column(Text, nullable=False, default="")
     status = Column(String(20), nullable=False, default="PENDING")  # PENDING / APPROVED / REJECTED
     approved_by = Column(String(100), nullable=True)

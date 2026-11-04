@@ -52,15 +52,22 @@ async def report_damage(
     if not product:
         raise HTTPException(status_code=404, detail=f"Product not found: barcode '{barcode}'.")
 
-    # Save photo if provided.
+    # Save photo if provided (stores as data-URI for cloud/Vercel persistence, plus local disk backup)
     photo_path = None
     if photo:
-        ext = os.path.splitext(photo.filename or "img.jpg")[1]
-        filename = f"{uuid.uuid4().hex}{ext}"
-        photo_path = os.path.join(UPLOAD_DIR, filename)
-        with open(photo_path, "wb") as f:
-            content = await photo.read()
-            f.write(content)
+        import base64
+        content = await photo.read()
+        mime = photo.content_type or "image/jpeg"
+        b64 = base64.b64encode(content).decode("utf-8")
+        photo_path = f"data:{mime};base64,{b64}"
+        try:
+            ext = os.path.splitext(photo.filename or "img.jpg")[1]
+            filename = f"{uuid.uuid4().hex}{ext}"
+            local_file = os.path.join(UPLOAD_DIR, filename)
+            with open(local_file, "wb") as f:
+                f.write(content)
+        except Exception:
+            pass
 
     report = DamageReport(
         product_id=product.id,

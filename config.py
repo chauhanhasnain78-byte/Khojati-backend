@@ -13,7 +13,12 @@ class _Settings:
     """Application-wide configuration constants."""
 
     # ── Database ───────────────────────────────────────────────────────────
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./khojati_inventory.db")
+    DATABASE_URL: str = (
+        os.getenv("POSTGRES_URL")
+        or os.getenv("DATABASE_URL")
+        or os.getenv("POSTGRES_PRISMA_URL")
+        or "sqlite:///./khojati_inventory.db"
+    )
 
     # ── Authentication ─────────────────────────────────────────────────────
     SECRET_KEY: str = os.getenv(
