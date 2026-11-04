@@ -3,10 +3,19 @@ Khojati Inventory Management System - Application Configuration.
 
 Central configuration for database, authentication, Google Sheets
 integration, and stock management thresholds. Supports environment variables
-for seamless cloud deployment (Render, Railway, etc.).
+for seamless cloud deployment (Vercel, Render, Railway, etc.).
 """
 
 import os
+import tempfile
+
+
+def _get_default_db_url() -> str:
+    """Return SQLite URL, safely using /tmp in serverless (Vercel/Lambda)."""
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        tmp_db = os.path.join(tempfile.gettempdir(), "khojati_inventory.db")
+        return f"sqlite:///{tmp_db}"
+    return "sqlite:///./khojati_inventory.db"
 
 
 class _Settings:
@@ -17,7 +26,7 @@ class _Settings:
         os.getenv("POSTGRES_URL")
         or os.getenv("DATABASE_URL")
         or os.getenv("POSTGRES_PRISMA_URL")
-        or "sqlite:///./khojati_inventory.db"
+        or _get_default_db_url()
     )
 
     # ── Authentication ─────────────────────────────────────────────────────

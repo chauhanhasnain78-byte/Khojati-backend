@@ -21,8 +21,17 @@ from services.sheets_queue import sheets_queue
 
 router = APIRouter(prefix="/api", tags=["Adjustments"])
 
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "..", "uploads", "damage_photos")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+import tempfile
+
+if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+    UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "khojati_uploads", "damage_photos")
+else:
+    UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "..", "uploads", "damage_photos")
+
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+except Exception:
+    pass
 
 
 # ═══════════════════════════════════════════════════════════════════════

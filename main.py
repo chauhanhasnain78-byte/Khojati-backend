@@ -47,9 +47,32 @@ app.add_middleware(
 
 # ── Static Files (Damage Photos) ──────────────────────────────────────
 import os
-UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads", "damage_photos")
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "uploads")), name="uploads")
+import tempfile
+
+if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+    UPLOAD_DIR = os.path.join(tempfile.gettempdir(), "khojati_uploads", "damage_photos")
+else:
+    UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads", "damage_photos")
+
+try:
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=os.path.dirname(UPLOAD_DIR)), name="uploads")
+except Exception as e:
+    logger.warning("Could not mount static uploads directory: %s", e)
+
+
+# ── Root Health Check ─────────────────────────────────────────────────
+
+@app.get("/", tags=["Health"])
+def root_health_check():
+    """Health check endpoint to verify backend status."""
+    return {
+        "status": "online",
+        "app": "Khojati Inventory Management API",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "message": "Khojati backend serverless engine is operational.",
+    }
 
 
 # ── Register Routers ──────────────────────────────────────────────────
@@ -93,73 +116,64 @@ def verify_admin_pin(data: PinVerifyRequest):
 def on_startup():
     """Initialise database tables and seed sample Khojati products."""
     logger.info("Initialising database...")
-    init_db()
-
-    db = SessionLocal()
     try:
-        count = db.query(Product).count()
-        if count == 0:
-            logger.info("Seeding sample Khojati products...")
-            sample_products = [
-                Product(
-                    barcode="8901234567890",
-                    product_name="Khojati Surma Sada 50g",
-                    category="Eye Care",
-                    unit="pcs",
-                    current_stock=100,
-                    low_stock_threshold=20,
-                ),
-                Product(
-                    barcode="8901234567891",
-                    product_name="Khojati Surma Khas 25g",
-                    category="Eye Care",
-                    unit="pcs",
-                    current_stock=80,
-                    low_stock_threshold=15,
-                ),
-                Product(
-                    barcode="8901234567892",
-                    product_name="Khojati Mamira Eye Drops 10ml",
-                    category="Eye Care",
-                    unit="bottles",
-                    current_stock=150,
-                    low_stock_threshold=25,
-                ),
-                Product(
-                    barcode="8901234567893",
-                    product_name="Khojati Dant Manjan 100g",
-                    category="Oral Care",
-                    unit="pcs",
-                    current_stock=200,
-                    low_stock_threshold=30,
-                ),
-                Product(
-                    barcode="8901234567894",
-                    product_name="Khojati Rose Water 100ml",
-                    category="Personal Care",
-                    unit="bottles",
-                    current_stock=120,
-                    low_stock_threshold=20,
-                ),
-            ]
-            db.add_all(sample_products)
-            db.commit()
-            logger.info("Seeded %d sample products.", len(sample_products))
-        else:
-            logger.info("Database already contains %d products. Skipping seed.", count)
-    finally:
-        db.close()
+        init_db()
+
+        db = SessionLocal()
+        try:
+            count = db.query(Product).count()
+            if count == 0:
+                logger.info("Seeding sample Khojati products...")
+                sample_products = [
+                    Product(
+                        barcode="8901234567890",
+                        product_name="Khojati Surma Sada 50g",
+                        category="Eye Care",
+                        unit="pcs",
+                        current_stock=100,
+                        low_stock_threshold=20,
+                    ),
+                    Product(
+                        barcode="8901234567891",
+                        product_name="Khojati Surma Khas 25g",
+                        category="Eye Care",
+                        unit="pcs",
+                        current_stock=80,
+                        low_stock_threshold=15,
+                    ),
+                    Product(
+                        barcode="8901234567892",
+                        product_name="Khojati Mamira Eye Drops 10ml",
+                        category="Eye Care",
+                        unit="bottles",
+                        current_stock=150,
+                        low_stock_threshold=25,
+                    ),
+                    Product(
+                        barcode="8901234567893",
+                        product_name="Khojati Dant Manjan 100g",
+                        category="Oral Care",
+                        unit="pcs",
+                        current_stock=200,
+                        low_stock_threshold=30,
+                    ),
+                    Product(
+                        barcode="8901234567894",
+                        product_name="Khojati Rose Water 100ml",
+                        category="Personal Care",
+                        unit="bottles",
+                        current_stock=120,
+                        low_stock_threshold=20,
+                    ),
+                ]
+                db.add_all(sample_products)
+                db.commit()
+                logger.info("Seeded %d sample products.", len(sample_products))
+            else:
+                logger.info("Database already contains %d products. Skipping seed.", count)
+        finally:
+            db.close()
+    except Exception as e:
+        logger.error("Database initialization warning: %s", e)
 
     logger.info("Khojati Inventory Management System is ready.")
-
-
-# ── Health Check ──────────────────────────────────────────────────────
-
-@app.get("/", tags=["Health"])
-def health_check():
-    """Basic health check endpoint."""
-    return {
-        "service": "Khojati Inventory Management System",
-        "status": "operational",
-        "version": "1.0.0",
-    }
