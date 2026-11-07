@@ -18,8 +18,9 @@ except Exception as e:
 
     app = FastAPI(title="Khojati Error Diagnostic")
 
+    @app.api_route("/", methods=["GET", "POST"])
     @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
-    async def catch_all(path: str):
+    async def catch_all(path: str = ""):
         return JSONResponse(
             status_code=200,
             content={

@@ -18,24 +18,35 @@ def _get_default_db_url() -> str:
     return "sqlite:///./khojati_inventory.db"
 
 
+def _is_usable_db_url(url: str | None) -> bool:
+    """Check if connection string is a direct TCP PostgreSQL URL (not an HTTP/WebSocket proxy)."""
+    if not url:
+        return False
+    # Prisma Accelerate is an HTTP/WebSocket proxy for JS Prisma Client, not a raw PostgreSQL server.
+    if "accelerate.prisma-data.net" in url:
+        return False
+    return True
+
+
 def _find_database_url() -> str:
     """Detect database connection string from various cloud provider env vars."""
+    # Prioritise direct PostgreSQL connection strings over poolers / proxies
     keys = [
-        "DATABASE_URL",
+        "POSTGRES_URL_NON_POOLING",
         "POSTGRES_URL",
         "POSTGRES_PRISMA_URL",
+        "DATABASE_URL",
         "PRISMA_DATABASE_URL",
         "STORAGE_URL",
-        "POSTGRES_URL_NON_POOLING",
     ]
     for key in keys:
         val = os.getenv(key)
-        if val:
+        if _is_usable_db_url(val):
             return val
 
-    # Scan for any env var containing a postgres connection string
+    # Scan for any env var containing a usable postgres connection string
     for _, val in os.environ.items():
-        if val and ("postgres://" in val or "postgresql://" in val or "prisma+postgres://" in val):
+        if val and _is_usable_db_url(val) and ("postgres://" in val or "postgresql://" in val):
             return val
 
     return _get_default_db_url()

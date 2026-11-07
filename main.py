@@ -13,8 +13,8 @@ from fastapi.staticfiles import StaticFiles
 
 from auth import create_access_token, hash_pin, verify_pin
 from config import settings
-from database import init_db, SessionLocal
-from models import Product
+from database import init_db, SessionLocal, db_status_info
+from models import MovementType, Product, StockLedger
 from schemas import PinVerifyRequest, TokenResponse
 
 # ── Logging Configuration ─────────────────────────────────────────────
@@ -71,6 +71,10 @@ def root_health_check():
         "app": "Khojati Inventory Management API",
         "version": "1.0.0",
         "docs": "/docs",
+        "database": {
+            "type": "sqlite" if db_status_info.get("is_sqlite") else "postgresql",
+            "fallback": db_status_info.get("fallback", False),
+        },
         "message": "Khojati backend serverless engine is operational.",
     }
 
@@ -167,8 +171,24 @@ def on_startup():
                     ),
                 ]
                 db.add_all(sample_products)
+                db.flush()
+
+                # Seed initial immutable ledger records for mathematical integrity
+                for p in sample_products:
+                    ledger_entry = StockLedger(
+                        product_id=p.id,
+                        movement_type=MovementType.INWARD_GRN,
+                        reference_number="INITIAL-STOCK-SEED",
+                        previous_balance=0,
+                        quantity_delta=p.current_stock,
+                        new_balance=p.current_stock,
+                        operator="System Init",
+                        notes="Opening inventory balance initialization",
+                    )
+                    db.add(ledger_entry)
+
                 db.commit()
-                logger.info("Seeded %d sample products.", len(sample_products))
+                logger.info("Seeded %d sample products and initial audit ledger entries.", len(sample_products))
             else:
                 logger.info("Database already contains %d products. Skipping seed.", count)
         finally:
