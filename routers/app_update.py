@@ -31,7 +31,7 @@ DEFAULT_VERSION_DATA = {
     "min_supported_version": "1.0.0",
     "apk_url": "/api/app/download",
     "release_notes": "Initial cloud release with live stock, dual portals, and barcode scanning.",
-    "force_update": false,
+    "force_update": False,
     "published_at": "2026-11-08T11:00:00Z",
 }
 
