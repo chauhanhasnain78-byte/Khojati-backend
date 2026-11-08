@@ -2,8 +2,8 @@
   "latest_version": "1.0.1",
   "version_code": 2,
   "min_supported_version": "1.0.0",
-  "apk_url": "https://github.com/chauhanhasnain78-byte/Khojati-backend/releases/download/v1.0.1/Khojati_Inventory.apk",
+  "apk_url": "/api/app/download",
   "release_notes": "Super-fast microsecond PIN unlock and background server keep-alive.",
   "force_update": false,
-  "published_at": "2026-11-08T14:40:00Z"
+  "published_at": "2026-11-08T15:15:00Z"
 }
