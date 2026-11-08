@@ -1,9 +1,9 @@
 {
-  "latest_version": "1.0.0",
-  "version_code": 1,
+  "latest_version": "1.0.1",
+  "version_code": 2,
   "min_supported_version": "1.0.0",
   "apk_url": "/api/app/download",
-  "release_notes": "Initial cloud release with live stock, dual portals, and barcode scanning.",
+  "release_notes": "Super-fast microsecond PIN unlock and background server keep-alive.",
   "force_update": false,
-  "published_at": "2026-11-08T11:00:00Z"
+  "published_at": "2026-11-08T14:20:00Z"
 }
