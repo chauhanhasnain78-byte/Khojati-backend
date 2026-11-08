@@ -80,7 +80,7 @@ def root_health_check():
 
 
 # ── Register Routers ──────────────────────────────────────────────────
-from routers import products, orders, inward, adjustments, dashboard, sheets_sync
+from routers import products, orders, inward, adjustments, dashboard, sheets_sync, app_update
 
 app.include_router(products.router)
 app.include_router(orders.router)
@@ -88,6 +88,7 @@ app.include_router(inward.router)
 app.include_router(adjustments.router)
 app.include_router(dashboard.router)
 app.include_router(sheets_sync.router)
+app.include_router(app_update.router)
 
 
 # ── Auth Endpoint ─────────────────────────────────────────────────────
