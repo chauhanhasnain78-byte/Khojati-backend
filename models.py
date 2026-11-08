@@ -74,6 +74,7 @@ class Product(Base):
     barcode = Column(String(50), unique=True, nullable=False, index=True)
     product_name = Column(String(200), nullable=False)
     category = Column(String(100), nullable=False, default="General")
+    subcategory = Column(String(100), nullable=True, default=None)
     unit = Column(String(30), nullable=False, default="pcs")
     current_stock = Column(Integer, nullable=False, default=0)
     reserved_stock = Column(Integer, nullable=False, default=0)

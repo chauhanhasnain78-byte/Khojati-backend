@@ -1,9 +1,9 @@
 {
-  "latest_version": "1.0.1",
-  "version_code": 2,
+  "latest_version": "1.0.2",
+  "version_code": 3,
   "min_supported_version": "1.0.0",
   "apk_url": "/api/app/download",
-  "release_notes": "Super-fast microsecond PIN unlock and background server keep-alive.",
+  "release_notes": "Added all 162 Khojati products across 14 categories with Smart Category Order Selector.",
   "force_update": false,
-  "published_at": "2026-11-08T15:15:00Z"
+  "published_at": "2026-11-08T18:00:00Z"
 }

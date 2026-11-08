@@ -68,6 +68,7 @@ def get_live_stock(
             barcode=p.barcode,
             product_name=p.product_name,
             category=p.category,
+            subcategory=p.subcategory,
             unit=p.unit,
             current_stock=p.current_stock,
             low_stock_threshold=p.low_stock_threshold,

@@ -92,3 +92,19 @@ def init_db():
             logger.info("Successfully initialized fallback SQLite database at %s", tmp_db)
         else:
             raise
+
+    # Auto-migrate subcategory column if missing
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            if is_sqlite:
+                result = conn.execute(text("PRAGMA table_info(products)")).fetchall()
+                cols = [r[1] for r in result]
+                if "subcategory" not in cols:
+                    conn.execute(text("ALTER TABLE products ADD COLUMN subcategory VARCHAR(100);"))
+                    conn.commit()
+            else:
+                conn.execute(text("ALTER TABLE products ADD COLUMN IF NOT EXISTS subcategory VARCHAR(100);"))
+                conn.commit()
+    except Exception as e:
+        logger.warning("Could not auto-migrate subcategory column: %s", e)

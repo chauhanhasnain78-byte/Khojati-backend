@@ -58,6 +58,11 @@ class ProductCreate(BaseModel):
         max_length=100,
         description="Product category",
     )
+    subcategory: Optional[str] = Field(
+        default=None,
+        max_length=100,
+        description="Product subcategory",
+    )
     unit: str = Field(
         default="pcs",
         min_length=1,
@@ -84,6 +89,7 @@ class ProductResponse(BaseModel):
     barcode: str
     product_name: str
     category: str
+    subcategory: Optional[str] = None
     unit: str
     current_stock: int
     low_stock_threshold: int
@@ -102,6 +108,7 @@ class ProductPublicResponse(BaseModel):
     barcode: str
     product_name: str
     category: str
+    subcategory: Optional[str] = None
     unit: str
 
 
@@ -357,6 +364,7 @@ class LiveStockItem(BaseModel):
     barcode: str
     product_name: str
     category: str
+    subcategory: Optional[str] = None
     unit: str
     current_stock: int
     low_stock_threshold: int

@@ -78,6 +78,7 @@ def create_or_update_product(
     if existing:
         existing.product_name = data.product_name
         existing.category = data.category
+        existing.subcategory = data.subcategory
         existing.unit = data.unit
         existing.low_stock_threshold = data.low_stock_threshold
         db.commit()
@@ -88,6 +89,7 @@ def create_or_update_product(
         barcode=data.barcode,
         product_name=data.product_name,
         category=data.category,
+        subcategory=data.subcategory,
         unit=data.unit,
         current_stock=data.current_stock,
         low_stock_threshold=data.low_stock_threshold,
